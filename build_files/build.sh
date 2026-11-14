@@ -2,26 +2,35 @@
 
 set -ouex pipefail
 
-# Copy the contents of system_files/ of the git repo to /
+# Copy the contents of system_files/ into the image.
 cp -avf "/ctx/system_files"/. /
 
-### Install packages
+# Hyprland is provided by the Fedora 45 COPR tested on the host.
+dnf5 -y copr enable mineiro/hyprland
 
-# Packages can be installed from any enabled yum repo on the image.
-# RPMfusion repos are available by default in ublue main images
-# List of rpmfusion packages can be found here:
-# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
+# Install the desktop alongside the existing GNOME desktop.
+dnf5 -y install \
+    hyprland \
+    waybar \
+    kitty \
+    rofi \
+    Thunar \
+    xdg-desktop-portal-hyprland \
+    xdg-desktop-portal-gtk \
+    grim \
+    slurp \
+    wl-clipboard \
+    brightnessctl \
+    playerctl \
+    pavucontrol \
+    network-manager-applet \
+    lxpolkit \
+    papirus-icon-theme \
+    google-noto-emoji-fonts \
+    tmux
 
-# this installs a package from fedora repos
-dnf5 install -y tmux
+# Do not leave the build-only COPR enabled in the finished image.
+dnf5 -y copr disable mineiro/hyprland
 
-# Use a COPR Example:
-#
-# dnf5 -y copr enable ublue-os/staging
-# dnf5 -y install package
-# Disable COPRs so they don't end up enabled on the final image:
-# dnf5 -y copr disable ublue-os/staging
-
-#### Example for enabling a System Unit File
-
+# Keep the existing Bazzite/GNOME setup intact; Hyprland is an additional session.
 systemctl enable podman.socket
